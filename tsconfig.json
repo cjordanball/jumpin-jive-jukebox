@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        // the standard typing to be included in type checking
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        // allow plain JavaScript files to be compiled
+        "allowJs": true,
+        // allow default imports from modules with no default export
+        // in the type checking process
+        "allowSyntheticDefaultImports": true,
+        // whether to skip type checking in type declaration files (*.d.ts)
+        "skipLibCheck": true,
+        // allows compatibility with Babel
+        "esModuleInterop": true,
+        // highest level of type checking
+        "strict": true,
+        // make sure that casing of referenced file names is consistent
+        "forceConsistentCasingInFileNames": true,
+        // how module dependencies get resolved
+        "moduleResolution": "node",
+        // allows modules to be in JSON files (such as config files)
+        "resolveJsonModule": true,
+        // whether to suppress TypeScript code generation.  We use Babel for this
+        "noEmit": true,
+        // how to support JSX in .tsx files
+        "jsx":"react"
+    },
+    // the files and directories for TS to check
+    "include": ["src", "webpack.prod.config.ts", "styles.d.ts"]
+}
