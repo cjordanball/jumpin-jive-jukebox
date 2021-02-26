@@ -1,3 +1,9 @@
+@import '/src/styling';
+
+:root {
+  font-family: Roboto;
+}
+
 .playerFace {
   width: 90%;
   margin: 0 auto;
@@ -5,6 +11,29 @@
   background-color: #ccc;
   border: solid 1px #333;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.topLevel {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  min-height: 50px;
+  flex-grow: 1;
+}
+
+.infoSpace {
+  flex-grow: 5;
+}
+
+.bottomLevel {
+  flex-grow: 3;
+  min-height: 70px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .playButtons {
@@ -15,4 +44,25 @@
   border-radius: 8px;
   background-color: navy;
   color: #ccc;
+}
+
+.nowPlaying {
+  margin: 30px 0;
+}
+
+.songTitle {
+  font-size: 36px;
+  text-align: center;
+}
+.titleText {
+  color: navy;
+}
+
+.songArtist {
+  font-size: 24px;
+  text-align: center;
+}
+
+.songTitle .title {
+  color: red;
 }

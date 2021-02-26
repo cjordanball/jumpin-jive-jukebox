@@ -1,8 +1,11 @@
+@import '/src/styling';
+
 .allHeading {
   width: 100%;
   text-align: center;
   color: navy;
   margin-bottom: 3rem;
+  font-family: Roboto;
 }
 
 .mainHeadline {

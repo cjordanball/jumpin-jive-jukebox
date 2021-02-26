@@ -1,18 +1,27 @@
 import React, {useState, useEffect} from 'react';
-import { iSong, iAlbum, getAlbumList, getSongList } from '../fetchers';
-import { chooseSong, scrambleList } from '../helpers';
+import { iSong, iAlbum, iAugmentedSong } from '../interfaces';
+import { getAlbumList, getSongList } from '../fetchers';
+import { chooseSong, scrambleList, getAlbumInfo } from '../helpers';
 import AudioComponent from './AudioComponent';
+import AlbumCard from './AlbumCard';
 import styles from '/src/components/Container.module.css';
 
 let listLength: number;
+let albumLength: number;
 let scrambledList: Array<Array<iSong>>;
+let albumSongs: Array<iSong>;
+let myCounter = 0;
+let mode = '';
+let eventTime = '';
 
 
 const Parent: React.FC = () => {
     const [albums, setAlbums] = useState<Array<iAlbum>>([]);
+    const [songPlaying, setSongPlaying] = useState<iAugmentedSong | iSong | null>(null);
+    const [nextSong, setnextSong] = useState<iSong | null>(null);
     const [songs, setSongs] = useState<Array<iSong>>([]);
-    const [mode, setMode] = useState<string>('');
-    const [counter, setCounter] = useState<number>(0);
+    // const [mode, setMode] = useState<string>('');
+    // const [counter, setCounter] = useState<number>(0);
 
     const player = document.querySelector('audio');
 
@@ -22,26 +31,80 @@ const Parent: React.FC = () => {
     }, []);
 
     const playAllSongs = (): void => {
-        setMode('playAll');
+        myCounter = 0;
+        mode = 'playAll';
         scrambledList = scrambleList(songs);
         listLength = scrambledList.length;
-        player?.setAttribute('src', scrambledList[counter][0].url);
-        player?.load();
-        player?.play();
-        setCounter(counter + 1);
+        setSongPlaying(getAlbumInfo(albums, scrambledList[myCounter][0]));
+        setnextSong(scrambledList[myCounter+1][0]);
+        player?.setAttribute('src', scrambledList[myCounter][0].url);
+        player?.play()
+            .then(() => {
+                myCounter += 1;
+            })
+            .catch((err) => {console.log('ERR1: ', err)});
     }
 
-    player?.addEventListener('ended', () => {
-        if (mode === 'playAll' && counter < listLength) {
-            player?.setAttribute('src', scrambledList[counter][0].url);
-            player.load();
-            player.play();
-            setCounter(counter + 1);
+    const playAlbum = (chosenAlbumSongs: Array<iSong>): void => {
+        albumSongs = chosenAlbumSongs;
+        myCounter = 0;
+        mode = 'fullAlbum';
+        albumLength = albumSongs.length;
+        albumSongs.sort((song1, song2) => song1["Album Order"] - song2["Album Order"]);
+        const songInfo = getAlbumInfo(albums, albumSongs[0]);
+        setSongPlaying(songInfo);
+        setnextSong(albumSongs[1]);
+        player?.setAttribute('src', albumSongs[0].url);
+
+        player?.play()
+            .then(() => {
+                myCounter += 1;
+            })
+            .catch((err) => {console.log('ERR2: ', err)});
+    }
+
+    player?.addEventListener('ended', (e) => {
+        if (eventTime === e.timeStamp.toPrecision(5)) {
+            return
+        } else {
+            eventTime = e.timeStamp.toPrecision(5)
+        }
+        switch (mode) {
+            case 'playAll':
+                if (myCounter < listLength) {
+                    setSongPlaying(getAlbumInfo(albums, scrambledList[myCounter][0]));
+                    setnextSong(scrambledList[myCounter+1][0]);
+                    player?.setAttribute('src', scrambledList[myCounter][0].url);
+                    player?.play()
+                        .then(() => {
+                            myCounter += 1;
+                        })
+                        .catch((err) => {console.log('ERR3: ', err)});
+                }
+                break;
+            case 'fullAlbum':
+                if ( myCounter < albumLength) {
+
+                    const songInfo = getAlbumInfo(albums, albumSongs[myCounter]);
+                    setSongPlaying(songInfo);
+                    setnextSong(albumSongs[myCounter + 1]);
+                    player?.setAttribute('src', albumSongs[myCounter].url)
+                    player?.play()
+                        .then(() => {
+                            myCounter += 1;
+                        })
+                        .catch((err) => {console.log('ERR4: ', err)});
+                }
+                break;
+            default:
+                break;
         }
     })
 
     const playSong = (song: iSong): void => {
         const player = document.querySelector('audio');
+        setSongPlaying(getAlbumInfo(albums, song));
+        setnextSong(null);
         player?.setAttribute('src', song.url);
     }
 
@@ -54,32 +117,25 @@ const Parent: React.FC = () => {
                 backgroundSize: "contain"
             }
             return (
-                <div
-                    className={styles.albumCard} 
-                    key={album.title}
-                    >
-                    <div className={styles.coverSpace} style={albumStyle}></div>
-                    <div className={styles.albumInfo} onClick= {() => playSong(targetSong)}>
-                        <div className={styles.albumTitle}>{album.title}</div>
-                        <div className={styles.albumArtist}>{album.artist}</div>
-                        <div>{album.year}</div>
-                        <div className={styles.songName}>{targetSong ? `${targetSong.Title}` : ''}</div>
-                    </div>
-                    
-                </div>
+                <AlbumCard
+                    key={`${album.artist}${album.title}`} 
+                    year={album.year}
+                    artist={album.artist}
+                    album={album.title}
+                    title={targetSong ? `${targetSong.Title}` : ''}
+                    albumStyle={albumStyle}
+                    albumPlay = {() => playAlbum(album.songs)}
+                    songPlay = {() => playSong(targetSong)}
+                />
             )
     });
 
     return (
         <>
-            <AudioComponent playAll={() => playAllSongs()} />
-            {mode !== 'playAll' ? 
-                <>
-                    <div className={styles.container}>
-                        {albumElements}
-                    </div>
-                </> : null
-            }
+            <AudioComponent nextSong={nextSong} currentSong={songPlaying} playAll={() => playAllSongs()} />
+            <div className={styles.container}>
+                {albumElements}
+            </div>
         </>
     )
 };

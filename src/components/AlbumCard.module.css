@@ -1,0 +1,40 @@
+@import '/src/styling';
+
+.albumCard {
+  font-family: Roboto;
+  font-weight: 300;
+  font-size: 0.8rem;
+  border-radius: 0.3rem;
+  color: navy;
+  display: block;
+}
+
+.coverSpace {
+  height: 150px;
+  width: 150px;
+  border: 2px solid #888;
+}
+
+.albumTitle {
+  font-weight: 600;
+  width: fit-content;
+
+  min-width: 100%;
+  overflow: scroll;
+  font-size: 1rem;
+  height: 20px;
+}
+
+.albumInfo {
+  width: 150px;
+  padding: 5px 0;
+  margin-bottom: 5px;
+  text-align: center;
+  margin: 5px;
+  font-size: 12px;
+}
+
+.coverSpace:hover,
+.albumInfo:hover {
+  cursor: pointer;
+}
