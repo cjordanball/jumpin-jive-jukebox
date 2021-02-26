@@ -20,7 +20,8 @@ const Parent: React.FC = () => {
     const [songPlaying, setSongPlaying] = useState<iAugmentedSong | iSong | null>(null);
     const [nextSong, setnextSong] = useState<iSong | null>(null);
     const [songs, setSongs] = useState<Array<iSong>>([]);
-    // const [mode, setMode] = useState<string>('');
+    const [isPaused, setisPaused] = useState<boolean>(false);
+    // const [mode, setMode] = useState<string>('off');
     // const [counter, setCounter] = useState<number>(0);
 
     const player = document.querySelector('audio');
@@ -63,6 +64,14 @@ const Parent: React.FC = () => {
             .catch((err) => {console.log('ERR2: ', err)});
     }
 
+    player?.addEventListener('pause', (e) => {
+        setisPaused(true);
+    })
+    
+    player?.addEventListener('play', (e) => {
+        setisPaused(false);
+    })
+    
     player?.addEventListener('ended', (e) => {
         if (eventTime === e.timeStamp.toPrecision(5)) {
             return
@@ -102,16 +111,23 @@ const Parent: React.FC = () => {
     })
 
     const playSong = (song: iSong): void => {
-        const player = document.querySelector('audio');
         setSongPlaying(getAlbumInfo(albums, song));
         setnextSong(null);
         player?.setAttribute('src', song.url);
     }
 
+    const togglePlayPause = (): void => {
+        if (isPaused) {
+            player?.play();
+        } else {
+        player?.pause();
+        }
+    }
+
     const albumElements: JSX.Element[] = albums
         .sort((album1, album2) => (album1.displayName || album1.artist).localeCompare(album2.displayName || album2.artist))
         .map((album: iAlbum) => {
-            const targetSong = album.songs[chooseSong(album.songs.length)];
+            // const targetSong = album.songs[chooseSong(album.songs.length)];
             const albumStyle = {
                 backgroundImage: `url(${album.cover})`,
                 backgroundSize: "contain"
@@ -122,17 +138,20 @@ const Parent: React.FC = () => {
                     year={album.year}
                     artist={album.artist}
                     album={album.title}
-                    title={targetSong ? `${targetSong.Title}` : ''}
                     albumStyle={albumStyle}
                     albumPlay = {() => playAlbum(album.songs)}
-                    songPlay = {() => playSong(targetSong)}
                 />
             )
     });
 
     return (
         <>
-            <AudioComponent nextSong={nextSong} currentSong={songPlaying} playAll={() => playAllSongs()} />
+            <AudioComponent nextSong={nextSong}
+                action={() => togglePlayPause()}
+                currentSong={songPlaying}
+                playAll={() => playAllSongs()}
+                isPaused={isPaused}
+            />
             <div className={styles.container}>
                 {albumElements}
             </div>

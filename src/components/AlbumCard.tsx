@@ -10,7 +10,6 @@ const AlbumCard = (props: iAlbumCard): JSX.Element => (
             <div className={styles.albumTitle}>{props.album}</div>
             <div className={styles.albumArtist}>{props.artist}</div>
             <div>{props.year}</div>
-            <div className={styles.songName}>{props.title}</div>
         </div>
     </div>
 )
