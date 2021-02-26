@@ -39,16 +39,23 @@ export interface iAugmentedSong {
 export interface iAlbumCard {
     year: number,
     artist: string,
-    title: string,
     album: string,
     albumStyle: {
         backgroundImage: string,
         backgroundSize: string
     },
     albumPlay: () => void;
-    songPlay: () => void;
 }
 
 export interface iRoundButton {
-    text: string
+    text: string;
+    action?: () => void;
+}
+
+export interface iAudioCompProps {
+    playAll: () => void;
+    currentSong: iAugmentedSong | null;
+    nextSong: iSong | null;
+    action: () => void;
+    isPaused: boolean;
 }

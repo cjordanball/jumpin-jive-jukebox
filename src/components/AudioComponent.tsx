@@ -1,15 +1,10 @@
 import React from 'react';
-import { iSong, iAugmentedSong } from '../interfaces';
+import { iSong, iAugmentedSong, iAudioCompProps } from '../interfaces';
 import RoundButton from './RoundButton';
 import styles from '/src/components/AudioComponent.module.css';
 
-interface AudioProps {
-    playAll: () => void;
-    currentSong: iAugmentedSong | null;
-    nextSong: iSong | null;
-}
 
-const AudioComponent: React.FC<AudioProps> = (props:AudioProps) => (
+const AudioComponent: React.FC<iAudioCompProps> = (props:iAudioCompProps) => (
     <>
         <audio id={styles.audioPlayer} cross-origin="true" autoPlay src="">
             Audio player not supported by browser!
@@ -42,7 +37,7 @@ const AudioComponent: React.FC<AudioProps> = (props:AudioProps) => (
                 </div>
             </div>
             <div className={styles.bottomLevel}>
-                <RoundButton text="Pause" />
+                <RoundButton text={props.isPaused ? "Play" : "Pause"} action={props.action} />
                 <RoundButton text="Shuffle" />
             </div>
         </div>
