@@ -56,6 +56,7 @@ export interface iAudioCompProps {
     playAll: () => void;
     currentSong: iAugmentedSong | null;
     nextSong: iSong | null;
-    action: () => void;
+    togglePlayPause: () => void;
+    shuffleAlbum: () => void;
     isPaused: boolean;
 }

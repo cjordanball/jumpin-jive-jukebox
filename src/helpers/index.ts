@@ -1,17 +1,12 @@
 import { iSong, iAlbum, iAugmentedSong} from '../interfaces';
 
-export const chooseSong = (count: number): number => {
-    return Math.floor(Math.random() * count);
-};
-
-export const scrambleList = (songList: Array<iSong>): Array<Array<iSong>> => {
+export const scrambleList = (songList: Array<iSong>): Array<iSong> => {
     let arrayLength = songList.length;
-    const scrambledArray = [];
+    const scrambledArray: Array<iSong> = [];
     const listCopy = Array.from(songList);
-
     while (arrayLength) {
         const target = Math.floor(Math.random() * arrayLength);
-        scrambledArray.push(listCopy.splice(target, 1));
+        scrambledArray.push(listCopy.splice(target, 1)[0]);
         arrayLength -= 1;
     }
     return scrambledArray;
