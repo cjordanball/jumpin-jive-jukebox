@@ -1,5 +1,5 @@
 import React from 'react';
-import { iSong, iAugmentedSong, iAudioCompProps } from '../interfaces';
+import { iAudioCompProps } from '../interfaces';
 import RoundButton from './RoundButton';
 import styles from '/src/components/AudioComponent.module.css';
 
@@ -37,8 +37,8 @@ const AudioComponent: React.FC<iAudioCompProps> = (props:iAudioCompProps) => (
                 </div>
             </div>
             <div className={styles.bottomLevel}>
-                <RoundButton text={props.isPaused ? "Play" : "Pause"} action={props.action} />
-                <RoundButton text="Shuffle" />
+                <RoundButton text={props.isPaused ? "Play" : "Pause"} action={props.togglePlayPause} />
+                <RoundButton text="Shuffle" action={props.shuffleAlbum} />
             </div>
         </div>
         
