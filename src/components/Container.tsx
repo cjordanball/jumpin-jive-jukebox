@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { iSong, iAlbum, iAugmentedSong } from '../interfaces';
 import { Modes } from '../enums';
 import { getAlbumList, getSongList } from '../fetchers';
-import { scrambleList, getAlbumInfo } from '../helpers';
+import { scrambleList, getAlbumInfo, sortAlbumArtistYear } from '../helpers';
 import AudioComponent from './AudioComponent';
 import AlbumCard from './AlbumCard';
 import styles from '/src/components/Container.module.css';
@@ -11,10 +11,10 @@ let listLength: number;
 let albumLength: number;
 let scrambledList: Array<iSong>;
 let albumSongs: Array<iSong>;
-let myCounter = 0;
+let preppedAlbum: Array<iSong>;
+let songCounter = 0;
 let mode = Modes.off;
 let eventTime = '';
-// let currentAlbum = null;
 
 
 const Container: React.FC = () => {
@@ -34,38 +34,27 @@ const Container: React.FC = () => {
     }, []);
 
     const playAllSongs = (): void => {
-        myCounter = 0;
+        songCounter = 0;
         mode = Modes.playAll;
         scrambledList = scrambleList(songs);
         listLength = scrambledList.length;
-        setSongPlaying(getAlbumInfo(albums, scrambledList[myCounter]));
-        setNextSong(scrambledList[myCounter+1]);
-        player?.setAttribute('src', scrambledList[myCounter].url);
+        setSongPlaying(getAlbumInfo(albums, scrambledList[songCounter]));
+        setNextSong(scrambledList[songCounter + 1]);
+        player?.setAttribute('src', scrambledList[songCounter].url);
         player?.play()
             .then(() => {
-                myCounter += 1;
+                songCounter += 1;
             })
             .catch((err) => {console.log('ERR1: ', err)});
     }
 
-    const startAlbum = (songList: Array<iSong>): void => {
-        const songInfo = getAlbumInfo(albums, songList[0]);
-        setSongPlaying(songInfo);
-        setNextSong(songList[1]);
-        player?.setAttribute('src', songList[0].url);
-        player?.play()
-            .then(() => {myCounter += 1;})
-            .catch((err) => {console.log('ERR@: ', err)});
-    }
-
     const prepareAlbum = (songList: Array<iSong>): Array<iSong> => {
-        albumSongs = songList;
+        songCounter = 0;
         const songArray = Array.from(songList);
         if (mode === Modes.fullAlbum) {
             songArray.sort((song1, song2) => song1["Album Order"] - song2["Album Order"]);
             return songArray;
         } else if (mode === Modes.shuffledAlbum) {
-            console.log('inscramble');
             return scrambleList(songArray);
         } else {
             console.log ('Not an album!');
@@ -73,9 +62,44 @@ const Container: React.FC = () => {
         }
     }
 
-    const playAlbum = (albumSongs: Array<iSong>): void => {
+    const playNextSong = (songList: Array<iSong>, index: number): void => {
+        if (index >= albumLength) {
+            setSongPlaying(null);
+            setNextSong(null);
+            return;
+        }
+        const songInfo = getAlbumInfo(albums, songList[index]);
+        setSongPlaying(songInfo);
+        setNextSong(songList[index + 1]);
+        player?.setAttribute('src', songList[index].url);
+        player?.play()
+            .then(() => { return; })
+            .catch((err) => {console.log('ERR2: ', err)});
+    }
+
+    const selectAlbum = (songList: Array<iSong>): void => {
+        albumSongs = Array.from(songList);
         mode = Modes.fullAlbum;
-        startAlbum(prepareAlbum(albumSongs));
+        playAlbum(songList);
+    }
+
+    const shuffleAlbum = (songList: Array<iSong>): void => {
+        if (songList) {
+            if ([Modes.shuffledAlbum, Modes.fullAlbum].includes(mode)) {
+                mode = Modes.shuffledAlbum;
+            }
+            playAlbum(songList);
+        }
+        else {
+            alert('You have to select an album first!')
+        }
+    }
+
+    const playAlbum = (songList: Array<iSong>): void => {
+        songCounter = 0;
+        albumLength = songList.length;
+        preppedAlbum = prepareAlbum(songList);
+        playNextSong(preppedAlbum, songCounter);
     };
 
     player?.addEventListener('pause', () => {
@@ -92,38 +116,9 @@ const Container: React.FC = () => {
         } else {
             eventTime = e.timeStamp.toPrecision(5)
         }
-        console.log('switch: ', mode);
-        switch (mode) {
-            case Modes.playAll:
-                if (myCounter < listLength) {
-                    setSongPlaying(getAlbumInfo(albums, scrambledList[myCounter]));
-                    setNextSong(scrambledList[myCounter+1]);
-                    player?.setAttribute('src', scrambledList[myCounter].url);
-                    player?.play()
-                        .then(() => {
-                            myCounter += 1;
-                        })
-                        .catch((err) => {console.log('ERR3: ', err)});
-                }
-                break;
-            case Modes.fullAlbum:
-                if ( myCounter < albumLength) {
-
-                    const songInfo = getAlbumInfo(albums, albumSongs[myCounter]);
-                    setSongPlaying(songInfo);
-                    setNextSong(albumSongs[myCounter + 1]);
-                    player?.setAttribute('src', albumSongs[myCounter].url)
-                    player?.play()
-                        .then(() => {
-                            myCounter += 1;
-                        })
-                        .catch((err) => {console.log('ERR4: ', err)});
-                }
-                break;
-            default:
-                break;
-        }
-    })
+        songCounter += 1;
+        playNextSong(preppedAlbum, songCounter);
+    });
 
     const togglePlayPause = (): void => {
         if (isPaused) {
@@ -133,13 +128,7 @@ const Container: React.FC = () => {
         }
     }
 
-    const shuffleAlbum = (): void => {
-        mode = Modes.shuffledAlbum;
-        startAlbum(prepareAlbum(albumSongs));
-    }
-
-    const albumElements: JSX.Element[] = albums
-        .sort((album1, album2) => (album1.displayName || album1.artist).localeCompare(album2.displayName || album2.artist))
+    const albumElements: JSX.Element[] = sortAlbumArtistYear(albums)
         .map((album: iAlbum) => {
             const albumStyle = {
                 backgroundImage: `url(${album.cover})`,
@@ -152,7 +141,7 @@ const Container: React.FC = () => {
                     artist={album.artist}
                     album={album.title}
                     albumStyle={albumStyle}
-                    albumPlay = {() => playAlbum(album.songs)}
+                    albumPlay = {() => selectAlbum(album.songs)}
                 />
             )
     });
@@ -161,7 +150,7 @@ const Container: React.FC = () => {
         <>
             <AudioComponent nextSong={nextSong}
                 togglePlayPause={() => togglePlayPause()}
-                shuffleAlbum={() => shuffleAlbum()}
+                shuffleAlbum={() => shuffleAlbum(albumSongs)}
                 currentSong={songPlaying}
                 playAll={() => playAllSongs()}
                 isPaused={isPaused}
