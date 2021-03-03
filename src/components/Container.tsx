@@ -7,9 +7,8 @@ import AudioComponent from './AudioComponent';
 import AlbumCard from './AlbumCard';
 import styles from '/src/components/Container.module.css';
 
-let listLength: number;
+// let listLength: number;
 let albumLength: number;
-let scrambledList: Array<iSong>;
 let albumSongs: Array<iSong>;
 let preppedAlbum: Array<iSong>;
 let songCounter = 0;
@@ -34,18 +33,8 @@ const Container: React.FC = () => {
     }, []);
 
     const playAllSongs = (): void => {
-        songCounter = 0;
-        mode = Modes.playAll;
-        scrambledList = scrambleList(songs);
-        listLength = scrambledList.length;
-        setSongPlaying(getAlbumInfo(albums, scrambledList[songCounter]));
-        setNextSong(scrambledList[songCounter + 1]);
-        player?.setAttribute('src', scrambledList[songCounter].url);
-        player?.play()
-            .then(() => {
-                songCounter += 1;
-            })
-            .catch((err) => {console.log('ERR1: ', err)});
+        mode = Modes.shuffledAlbum;
+        playAlbum(songs);
     }
 
     const prepareAlbum = (songList: Array<iSong>): Array<iSong> => {
