@@ -22,7 +22,7 @@ const AudioComponent: React.FC<iAudioCompProps> = (props:iAudioCompProps) => (
                 <div className={styles.nowPlaying}>
                     {
                         props.currentSong ?
-                        <><div className={styles.songTitle}>You&apos;re hearing: <span className={styles.titleText}>{props.currentSong.Title}</span></div>
+                        <><div className={styles.songTitle}>Now up: <span className={styles.titleText}>{props.currentSong.Title}</span></div>
                         <div className={styles.songArtist}>by <span className={styles.titleText}>{props.currentSong && props.currentSong.artist} ({props.currentSong && props.currentSong.year})</span></div></> :
                         null
                     
@@ -31,7 +31,7 @@ const AudioComponent: React.FC<iAudioCompProps> = (props:iAudioCompProps) => (
                 <div className={styles.upNext}>
                     {
                         props.nextSong ? 
-                        <><div className={styles.songTitle}>Next Up: <span className={styles.titleText}>{props.nextSong.Title}</span></div></> :
+                        <><div className={styles.songTitle}>Next: <span className={styles.titleText}>{props.nextSong.Title}</span></div></> :
                         null
                     }
                 </div>
