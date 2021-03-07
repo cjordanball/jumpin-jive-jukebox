@@ -6,7 +6,7 @@ import Heading from './components/Heading';
 
 const App = () => {
     return (
-        <div>
+        <div className="app-container">
             <Heading/>
             <Container />
             {/* <TestComp /> */}

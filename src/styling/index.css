@@ -1,3 +1,4 @@
-/* body {
-  font-family: 'Roboto', sans-serif;
-} */
+.app-container {
+  max-width: 1760px;
+  margin: 0 auto;
+}
